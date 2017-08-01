@@ -36,7 +36,7 @@ impl BatteryW {
 
         let fillbars = COLORS
             .iter()
-            .map(|&(bright, dark)| FillBar::gradient('@', 8, dark, bright))
+            .map(|&(bright, dark)| FillBar::gradient('#', 8, dark, bright))
             .collect();
 
         BatteryW { re, fillbars }
