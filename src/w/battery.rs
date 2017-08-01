@@ -36,7 +36,7 @@ impl BatteryW {
 
         let fillbars = COLORS
             .iter()
-            .map(|&(bright, dark)| FillBar::gradient('#', 8, dark, bright))
+            .map(|&(bright, dark)| FillBar::gradient(8, dark, bright))
             .collect();
 
         BatteryW { re, fillbars }
@@ -98,7 +98,7 @@ impl Widget for BatteryW {
         let text_color = COLORS[index].0;
 
         Ok(iter::once(Elem::plain("bat: ["))
-           .chain(bar.blit(amt, 100))
+           .chain(bar.blit('#', amt, 100))
            .chain(vec![Elem::plain("]  "),
                        Elem::new(format!("{:02}% ", amt), text_color),
                        Elem::new(time_text, "#3d3d53")])

@@ -16,7 +16,7 @@ impl MemoryW {
     pub fn new() -> Self {
         let re = regex::Regex::new(r"Mem:\s+(\d+)\s+(\d+)\s+(\d+)").unwrap();
 
-        let fillbar = FillBar::single('.', 12, "#20ba00");
+        let fillbar = FillBar::single(12, "#20ba00");
 
         MemoryW { re, fillbar }
     }
@@ -42,7 +42,7 @@ impl Widget for MemoryW {
         let (mb_use, mb_tot) = self.parse_free()?;
 
         Ok(iter::once(Elem::plain("mem: ["))
-           .chain(self.fillbar.blit(mb_use, mb_tot))
+           .chain(self.fillbar.blit('·', mb_use, mb_tot))
            .chain(vec![Elem::plain("] "),
                        Elem::new(format!("{}mb", mb_use), "#3d3d53")])
            .collect())

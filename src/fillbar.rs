@@ -4,7 +4,6 @@ use render::Elem;
 // a visual bar (e.g. [===    ])
 #[derive(Clone)]
 pub struct FillBar {
-    chr: char,
     colors: Vec<RGB>,
 }
 
@@ -16,13 +15,13 @@ struct RGB {
 
 //
 impl FillBar {
-    pub fn single<C: AsRef<str>>(chr: char, len: i32, c: C) -> Self {
+    pub fn single<C: AsRef<str>>(len: i32, c: C) -> Self {
         let color = c.as_ref().parse().unwrap();
         let colors = vec![color; len as usize];
-        FillBar { chr, colors }
+        FillBar { colors }
     }
 
-    pub fn gradient<C1, C2>(chr: char, len: i32, c1: C1, c2: C2) -> Self
+    pub fn gradient<C1, C2>(len: i32, c1: C1, c2: C2) -> Self
         where C1: AsRef<str>,
               C2: AsRef<str> {
 
@@ -32,14 +31,14 @@ impl FillBar {
             .map(|i| RGB::lerp(color1, color2, i, len - 1))
             .collect();
 
-        FillBar { chr, colors }
+        FillBar { colors }
     }
 
     pub fn len(&self) -> usize {
         self.colors.len()
     }
 
-    pub fn blit(&self, amt: i32, tot: i32) -> Vec<Elem> {
+    pub fn blit(&self, chr: char, amt: i32, tot: i32) -> Vec<Elem> {
         use std::iter;
         use std::cmp;
 
@@ -49,7 +48,7 @@ impl FillBar {
 
         let single_char_elem = |color: RGB| {
             Elem {
-                text: iter::once(self.chr).collect(),
+                text: iter::once(chr).collect(),
                 color: color.to_string(),
             }
         };
