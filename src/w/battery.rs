@@ -32,7 +32,7 @@ static COLORS: [(&'static str, &'static str); 6] =
 impl BatteryW {
 
     pub fn new() -> Self {
-        let re = Regex::new(r"Battery \d: (\S+), (\d+)%, (?:(\d+):(\d+):(\d+)|discharging at)").unwrap();
+        let re = Regex::new(r"Battery \d: (\S+), (\d+)%, (?:(\d+):(\d+):(\d+)|discharging at zero rate)").unwrap();
 
         let fillbars = COLORS
             .iter()
@@ -48,22 +48,23 @@ impl BatteryW {
         let caps = self.re.captures(&acpi_out)
                           .ok_or(Error::BadCmdFormat("acpi doesn't match regex"))?;
 
-
         let amt = caps[2].parse().unwrap();
 
         let bat_status =
-            if caps.len() > 3 {
-                let hr = caps[3].parse().unwrap();
-                let mn = caps[4].parse().unwrap();
+            match caps.get(3) {
+                Some(_) => {
+                    let hr = caps[3].parse().unwrap();
+                    let mn = caps[4].parse().unwrap();
 
-                match &caps[1] {
-                    "Charging" => BatStatus::Charging(hr, mn),
-                    "Discharging" => BatStatus::Discharging(hr, mn),
-                    _ => return Err(Error::BadCmdFormat("not charging or discharging?")),
+                    match &caps[1] {
+                        "Charging" => BatStatus::Charging(hr, mn),
+                        "Discharging" => BatStatus::Discharging(hr, mn),
+                        _ => return Err(Error::BadCmdFormat("not charging or discharging?")),
+                    }
                 }
 
-            } else {
-                BatStatus::Full
+                None =>
+                    BatStatus::Full,
             };
 
         Ok((amt, bat_status))
@@ -81,10 +82,15 @@ impl Widget for BatteryW {
         let index = match (bat_status, amt) {
             (Discharging(..),  0 ... 15) => 0,
             (Discharging(..), 15 ... 35) => 1,
-            (Discharging(..), 35 ... 90) => 2,
+            (Discharging(..), 35 ... 95) => 2,
             (Discharging(..), _)         => 3,
             (Charging(..),    _)         => 4,
             (Full,            _)         => 5,
+        };
+
+        let chr = match bat_status {
+            Discharging(..) => '#',
+            _ => '>',
         };
 
         let time_text = match bat_status {
@@ -98,7 +104,7 @@ impl Widget for BatteryW {
         let text_color = COLORS[index].0;
 
         Ok(iter::once(Elem::plain("bat: ["))
-           .chain(bar.blit('#', amt, 100))
+           .chain(bar.blit(chr, amt, 100))
            .chain(vec![Elem::plain("]  "),
                        Elem::new(format!("{:02}% ", amt), text_color),
                        Elem::new(time_text, "#3d3d53")])
