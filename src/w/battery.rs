@@ -22,7 +22,7 @@ enum BatStatus {
 static COLORS: [(&'static str, &'static str); 6] =
     [
         ("#f42c00", "#a81e00"), // critical battery
-        ("#f4db00", "#948500"), // low battery
+        ("#f4db00", "#f4db00"), // low battery
         ("#51e800", "#2d8200"), // high battery
         ("#00b2f4", "#004290"), // full battery
         ("#0062d7", "#004290"), // charging
@@ -106,7 +106,7 @@ impl Widget for BatteryW {
         Ok(iter::once(Elem::plain("bat: ["))
            .chain(bar.blit(chr, amt, 100))
            .chain(vec![Elem::plain("]  "),
-                       Elem::new(format!("{:02}% ", amt), text_color),
+                       Elem::new(format!("{:2}% ", amt), text_color),
                        Elem::new(time_text, "#3d3d53")])
            .collect())
     }
