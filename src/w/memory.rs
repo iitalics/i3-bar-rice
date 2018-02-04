@@ -42,7 +42,7 @@ impl Widget for MemoryW {
         let (mb_use, mb_tot) = self.parse_free()?;
 
         Ok(iter::once(Elem::plain("mem: ["))
-           .chain(self.fillbar.blit('·', mb_use, mb_tot))
+           .chain(self.fillbar.blit('\\', mb_use, mb_tot))
            .chain(vec![Elem::plain("] "),
                        Elem::new(format!("{}mb", mb_use), "#3d3d53")])
            .collect())
